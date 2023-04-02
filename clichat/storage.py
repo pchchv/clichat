@@ -27,3 +27,14 @@ def get_cache_path(create=True):
         os.makedirs(cache_path)
 
     return cache_path
+
+
+def get_session_path(session, exists=False):
+    """
+    Gets the path to the session file.
+    If exists=True, return None if the path does not exist.
+    """
+    session_path = os.path.join(get_cache_path(), f"{session}.yaml")
+    if exists and not os.path.exists(session_path):
+        return
+    return session_path
