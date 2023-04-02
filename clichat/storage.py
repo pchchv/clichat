@@ -4,7 +4,9 @@ as well as figuring out where to put them on various platforms.
 """
 
 import os
+import yaml
 import platformdirs
+from clichat import chat
 
 APP_NAME = "clichat"
 
@@ -38,3 +40,16 @@ def get_session_path(session, exists=False):
     if exists and not os.path.exists(session_path):
         return
     return session_path
+
+
+def messages_from_cache(session):
+    """Loads messages from session.
+    Return empty list if not exists.
+    """
+    file_path = get_session_path(session)
+    if not os.path.exists(file_path):
+        return []
+    else:
+        with open(file_path, "r") as f:
+            return [chat.Message.import_yaml(m) for m in
+                    yaml.load(f, yaml.SafeLoader)]
