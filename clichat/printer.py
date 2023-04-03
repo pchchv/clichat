@@ -3,6 +3,8 @@ import sys
 import json
 import rich
 from clichat import utils
+from rich.json import JSON
+from rich.markdown import Markdown
 
 
 def warn(msg):
@@ -72,3 +74,18 @@ def extract_messages(messages, args):
         print(extract_block(message.content))
     else:
         print(message.content.strip())
+
+
+def detect_and_format_message(msg, cutoff=None):
+    if cutoff and len(msg) > cutoff:
+        msg = "... **text shortened** ... " + msg[-cutoff:]
+        return msg
+    elif contains_json(msg):
+        utils.debug(detected="json")
+        return JSON(extract_json(msg))
+    elif is_markdown(msg):
+        utils.debug(detected="markdown")
+        return Markdown(msg)
+    else:
+        utils.debug(detected="regular")
+        return msg
