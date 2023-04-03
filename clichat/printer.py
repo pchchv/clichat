@@ -42,3 +42,13 @@ def extract_block(str):
         return sorted(matches, key=lambda x: len(x))[-1].strip()
     except IndexError:
         return None
+
+
+def extract_messages(messages, args):
+    message = messages[-1]
+    if contains_json(message.content):
+        print(extract_json(message.content))
+    elif contains_block(message.content):
+        print(extract_block(message.content))
+    else:
+        print(message.content.strip())
