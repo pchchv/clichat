@@ -1,5 +1,8 @@
 import os
-from clichat import storage, utils, printer, session
+import types
+from rich.text import Text
+from rich.live import Live
+from clichat import storage, utils, printer, session, chat
 
 
 def migrate_old_cache_file_if_exists():
@@ -44,3 +47,20 @@ def do_session_op(sess, op, rename_to):
         return 1
 
     return 0
+
+
+def fetch_and_cache(messages, params):
+    result = chat.query_chatgpt(messages, params)
+    if isinstance(result, types.GeneratorType):
+        text = Text("")
+        message = None
+        with Live(text, refresh_per_second=4) as live:
+            for message in result:
+                live.update(message.content)
+            live.update("")
+        response_msg = message
+    else:
+        response_msg = chat.query_chatgpt(messages, params)
+    messages.append(response_msg)
+    storage.to_cache(messages, params.session or utils.scratch_session)
+    return messages
