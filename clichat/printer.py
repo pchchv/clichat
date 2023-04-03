@@ -2,6 +2,7 @@ import re
 import sys
 import json
 import rich
+from clichat import utils
 
 
 def warn(msg):
@@ -42,6 +43,25 @@ def extract_block(str):
         return sorted(matches, key=lambda x: len(x))[-1].strip()
     except IndexError:
         return None
+
+
+def is_markdown(str):
+    """Helps avoid marking up things that shouldn't be marking up."""
+    md_links = len(re.findall(r"\[[^]]+\]\(https?:\/\/\S+\)", str))
+    md_text = len(re.findall(r"\s(__|\*\*)(?!\s)(.(?!\1))+(?!\s(?=\1))", str))
+    md_blocks = len(re.findall(r"```(.*?)```", str, re.DOTALL))
+    md_inline_blocks = len(re.findall(r"`[^`]+`", str)) - md_blocks
+
+    md_blocks *= 2
+    utils.debug(
+        title="counted",
+        md_links=md_links,
+        md_text=md_text,
+        md_inline_blocks=md_inline_blocks,
+        md_blocks=md_blocks,
+    )
+
+    return ((md_links + md_text + md_inline_blocks + md_blocks) >= 2)
 
 
 def extract_messages(messages, args):
