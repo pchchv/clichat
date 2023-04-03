@@ -1,7 +1,9 @@
 import os
+import rich
 import types
 from rich.text import Text
 from rich.live import Live
+from rich.prompt import Prompt
 from clichat import storage, utils, printer, session, chat
 
 
@@ -64,3 +66,29 @@ def fetch_and_cache(messages, params):
     messages.append(response_msg)
     storage.to_cache(messages, params.session or utils.scratch_session)
     return messages
+
+
+def start_repl(messages, params):
+    while True:
+        try:
+            query = Prompt.ask(
+                "[yellow]query (type 'quit' to exit): [/yellow]"
+                )
+        except (EOFError, KeyboardInterrupt):
+            rich.print("\n")
+            exit()
+        if query.lower() == "quit":
+            exit()
+
+        if not messages:
+            init_msgs = (
+                [storage.load_prompt_file(params.prompt_file)]
+                if params.prompt_file
+                else []
+            )
+            messages = chat.init_conversation(query, *init_msgs)
+        else:
+            messages.append(chat.Message("user", query))
+
+        messages = fetch_and_cache(messages, params)
+        printer.print_messages(messages[-1:], params)
