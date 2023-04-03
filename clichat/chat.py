@@ -1,3 +1,4 @@
+import os
 import yaml
 import collections
 
@@ -20,3 +21,9 @@ class Message(collections.namedtuple("Message", ["role", "content"])):
         Creating a class instance from the provided YAML representation.
         """
         return cls(**seq)
+
+
+def set_azure_if_present(config):
+    """Checks for azure settings and sets the endpoint configuration."""
+    if "OPENAI_API_AZURE_ENGINE" in os.environ:
+        config["engine"] = os.environ["OPENAI_API_AZURE_ENGINE"]
