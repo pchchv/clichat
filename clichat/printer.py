@@ -4,7 +4,13 @@ import json
 import rich
 from clichat import utils
 from rich.json import JSON
+from rich.rule import Rule
+from rich.console import Console
 from rich.markdown import Markdown
+
+
+console = Console()
+COLORS = {"user": "blue", "assistant": "green", "system": "red"}
 
 
 def warn(msg):
@@ -89,3 +95,36 @@ def detect_and_format_message(msg, cutoff=None):
     else:
         utils.debug(detected="regular")
         return msg
+
+
+def print_message(message, args):
+    printable = message.content
+    if not args.raw:
+        printable = detect_and_format_message(
+            message.content, cutoff=1000 if message.role == "user" else None
+        )
+    if not args.no_format:
+        console.print(Rule(message.role, style=COLORS[message.role]))
+
+    if args.raw:
+        print(message.content)
+    else:
+        console.print(printable)
+
+    if not args.no_format:
+        console.print(Rule(style=COLORS[message.role]))
+
+
+def print_messages(messages, args):
+    if "roles" not in args:
+        if args.only:
+            args.roles = ["assistant"]
+        else:
+            args.roles = ["user", "assistant"]
+
+    if args.extract:
+        extract_messages(messages, args)
+    else:
+        for message in messages:
+            if message.role in args.roles:
+                print_message(message, args)
