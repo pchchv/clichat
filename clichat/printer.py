@@ -1,3 +1,4 @@
+import re
 import sys
 import json
 import rich
@@ -27,3 +28,17 @@ def extract_json(str):
             return json.dumps(json.loads(" ".join(str.splitlines()[idx:])))
 
     raise ValueError("No json in string")
+
+
+def contains_block(str):
+    if extract_block(str):
+        return True
+    return False
+
+
+def extract_block(str):
+    matches = re.findall(r"```[\w]*(.*?)```", str, re.DOTALL)
+    try:
+        return sorted(matches, key=lambda x: len(x))[-1].strip()
+    except IndexError:
+        return None
