@@ -14,6 +14,11 @@ DEFAULT_OPENAI_SETTINGS = {
     "n": 1,
     "stream": False,
 }
+CostCalculation = collections.namedtuple("CostCalculation", "name tokens cost")
+CostConfig = collections.namedtuple("CostConfig",
+                                    "name prompt_cost completion_cost")
+costs = [CostConfig("gpt-3.5-turbo", 0.002, 0.002),
+         CostConfig("gpt-4", 0.03, 0.06)]
 
 
 class Message(collections.namedtuple("Message", ["role", "content"])):
@@ -116,3 +121,12 @@ def num_tokens_in_messages(messages, cost_config):
 def init_conversation(user_msg, system_msg=None):
     system = [Message("system", system_msg)] if system_msg else []
     return system + [Message("user", user_msg)]
+
+
+def get_tokens_and_costs(messages):
+    return [
+        CostCalculation(
+            cost_config.name, *num_tokens_in_messages(messages, cost_config)
+        )
+        for cost_config in costs
+    ]
