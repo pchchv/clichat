@@ -6,7 +6,7 @@ as well as figuring out where to put them on various platforms.
 import os
 import yaml
 import platformdirs
-from clichat import chat
+from clichat import chat, errors
 
 APP_NAME = "clichat"
 
@@ -53,3 +53,18 @@ def messages_from_cache(session):
         with open(file_path, "r") as f:
             return [chat.Message.import_yaml(m) for m in
                     yaml.load(f, yaml.SafeLoader)]
+
+
+def load_prompt_config_legacy_yaml(prompt_name):
+    """
+    It is necessary to use YAML to load the configuration by its name.
+    Assumes that the user created {name}.yaml in ~/.config/clichat
+    """
+    path = os.path.expanduser(
+        os.path.join("~/.config/clichat", f"{prompt_name}.yaml")
+    )
+    try:
+        with open(path, "r") as f:
+            return yaml.load(f, Loader=yaml.FullLoader)["system"]
+    except FileNotFoundError:
+        raise errors.CliChatError(f"Prompt {prompt_name} not found in {path}")
