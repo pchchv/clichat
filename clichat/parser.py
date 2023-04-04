@@ -4,6 +4,16 @@ import argparse
 from clichat import utils
 
 
+class RenameAction(argparse.Action):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        namespace.session_op = "rename"
+        try:
+            namespace.rename_to = valid_session(values[0])
+        except argparse.ArgumentTypeError as e:
+            raise argparse.ArgumentError(self, f"target: {e}")
+
+
 def get_piped_input():
     if not sys.stdin.isatty():
         return sys.stdin.read()
