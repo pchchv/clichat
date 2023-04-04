@@ -112,3 +112,25 @@ def load_prompt_file(prompt_name):
             f"no prompt {prompt_name} found in any of \
                 following locations: {locations}"
         )
+
+
+def to_cache(messages, session):
+    """Caches the current state of messages."""
+    file_path = get_session_path(session)
+    file_path_tmp = file_path + make_postfix()
+    with open(file_path_tmp, "w") as f:
+        yaml.dump(messages, f)
+
+    os.rename(file_path_tmp, file_path)
+
+
+def migrate_to_session(session):
+    """Saves the last pre-session messages into a session."""
+    file_path = get_cache_path(False)
+    messages = messages_from_cache_legacy()
+    file_path_tmp = file_path + make_postfix()
+    # resolves the name conflict,
+    # but keeps the old cache file until all goes well.
+    os.rename(file_path, file_path_tmp)
+    to_cache(messages, session)
+    os.unlink(file_path_tmp)
