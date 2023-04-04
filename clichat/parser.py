@@ -1,5 +1,6 @@
 import os
 import sys
+import argparse
 from clichat import utils
 
 
@@ -45,3 +46,10 @@ def extract_options(options):
     del options["chat_gpt"]
 
     return utils.DotDict(options)
+
+
+def valid_session(sess):
+    if all(char not in sess for char in ["/", "\\", "\n"]):
+        return sess
+    else:
+        raise argparse.ArgumentTypeError(f"invalid session name {sess}")
