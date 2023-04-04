@@ -1,10 +1,11 @@
 import os
+import sys
 import rich
 import types
 from rich.text import Text
 from rich.live import Live
 from rich.prompt import Prompt
-from clichat import storage, utils, printer, session, chat
+from clichat import storage, utils, printer, session, chat, errors, parser
 
 
 def migrate_old_cache_file_if_exists():
@@ -140,3 +141,23 @@ def handle_input(query, params):
 
     if params.interactive:
         start_repl(messages, params)
+
+
+def cli():
+    migrate_old_cache_file_if_exists()
+
+    query, params = parser.parse(sys.argv[1:])
+    if params.session_op:
+        ret = do_session_op(
+            params.session,
+            params.session_op,
+            params.rename_to
+            )
+        exit(ret)
+    if params.debug:
+        utils.CONSOLE_DEBUG_LOGGING = True
+    try:
+        handle_input(query, params)
+    except errors.CliChatError as e:
+        printer.warn(e)
+        exit(1)
