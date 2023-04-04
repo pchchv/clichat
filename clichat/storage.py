@@ -6,9 +6,11 @@ as well as figuring out where to put them on various platforms.
 import os
 import yaml
 import random
+import pickle
 import string
 import platformdirs
 from clichat import chat, errors
+
 
 APP_NAME = "clichat"
 
@@ -55,6 +57,16 @@ def messages_from_cache(session):
         with open(file_path, "r") as f:
             return [chat.Message.import_yaml(m) for m in
                     yaml.load(f, yaml.SafeLoader)]
+
+
+def messages_from_cache_legacy():
+    """Loads messages from the last state or CliChat if it does not exist."""
+    file_path = get_cache_path(False)
+    if not os.path.exists(file_path):
+        raise errors.cliChat("No last state cached from which to begin")
+    else:
+        with open(file_path, "rb") as f:
+            return pickle.load(f)
 
 
 def load_prompt_config_legacy_yaml(prompt_name):
