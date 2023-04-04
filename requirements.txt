@@ -1,4 +1,5 @@
-openai==0.27.2
+openai>=0.27.2
 platformdirs==3.2.0
+pyyaml==6.0
 rich==13.3.2
 tiktoken==0.3.3
