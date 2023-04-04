@@ -2,6 +2,7 @@ import os
 import yaml
 import types
 import openai
+import tiktoken
 import collections
 import openai.error
 from clichat import utils, errors
@@ -84,3 +85,34 @@ def query_chatgpt(messages, config):
         openai.error.RateLimitError,
     ) as e:
         raise errors.CliChatError(f"openai error: {e}")
+
+
+def num_tokens_in_messages(messages, cost_config):
+    """Returns the number of tokens used by a list of messages."""
+    try:
+        encoding = tiktoken.encoding_for_model(f"{cost_config.name}-0301")
+    except KeyError:
+        encoding = tiktoken.get_encoding("cl100k_base")
+    num_tokens = 0
+    cost = 0
+    for i, message in enumerate(messages):
+        msg_tokens = (
+            # every message follows <im_start>{role/name}\n{content}<im_end>\n
+            4
+        )
+        msg_tokens += len(encoding.encode(message.role))
+        msg_tokens += len(encoding.encode(message.content))
+        if i == len(messages) - 1 and message.role == "assistant":
+            cost += cost_config.completion_cost * msg_tokens
+        else:
+            cost += cost_config.prompt_cost * msg_tokens
+        num_tokens += msg_tokens
+    if messages[-1].role == "user":
+        num_tokens += 2  # every reply is primed with <im_start>assistant
+        cost += cost_config.prompt_cost * 2
+    return num_tokens, cost / 1000
+
+
+def init_conversation(user_msg, system_msg=None):
+    system = [Message("system", system_msg)] if system_msg else []
+    return system + [Message("user", user_msg)]
