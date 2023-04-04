@@ -5,6 +5,8 @@ as well as figuring out where to put them on various platforms.
 
 import os
 import yaml
+import random
+import string
 import platformdirs
 from clichat import chat, errors
 
@@ -68,3 +70,33 @@ def load_prompt_config_legacy_yaml(prompt_name):
             return yaml.load(f, Loader=yaml.FullLoader)["system"]
     except FileNotFoundError:
         raise errors.CliChatError(f"Prompt {prompt_name} not found in {path}")
+
+
+def make_postfix():
+    return "." + "".join(random.choices(string.ascii_letters + string.digits,
+                                        k=10))
+
+
+def load_prompt_file(prompt_name):
+    """Loads the cue configuration by its name.
+    Assumes that the user created the file ~/.config/clichat/{name_order} or
+    the file directly in the path.
+    """
+    paths_to_try = [
+        prompt_name,
+        os.path.expanduser(os.path.join("~/.config/clichat",
+                                        f"{prompt_name}")),
+    ]
+    try:
+        for file_path in paths_to_try:
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    return f.read()
+        # fallback legacy
+        load_prompt_config_legacy_yaml(prompt_name)
+    except Exception:
+        locations = "".join(["\n - " + p for p in paths_to_try])
+        raise errors.cliChat(
+            f"no prompt {prompt_name} found in any of \
+                following locations: {locations}"
+        )
