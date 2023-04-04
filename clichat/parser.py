@@ -1,5 +1,6 @@
 import os
 import sys
+from clichat import utils
 
 
 def get_piped_input():
@@ -15,3 +16,32 @@ def get_openai_key(options):
         return os.environ["OPENAI_API_KEY"]
     else:
         return None
+
+
+def extract_query(query):
+    """
+    Generates a query from a query as well as from any pipeline input.
+    The user can provide either only the query or the pipeline input,
+    or both, in which case the pipeline input is placed above the query.
+    """
+    query = " ".join(query) if query else None
+
+    piped_input = get_piped_input()
+    if query and piped_input:
+        return piped_input + "\n----------------\n" + query
+    elif query:
+        return query
+    elif piped_input:
+        return piped_input
+    else:
+        return None
+
+
+def extract_options(options):
+    options = vars(options)  # to map
+    options["openai_api_key"] = get_openai_key(options)
+    options["model"] = {"3.5": "gpt-3.5-turbo", "4": "gpt-4"}[options["chat_gpt"]]
+    del options["query"]
+    del options["chat_gpt"]
+
+    return utils.DotDict(options)
