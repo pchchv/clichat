@@ -5,6 +5,7 @@ import rich
 from clichat import utils
 from rich.json import JSON
 from rich.rule import Rule
+from rich.table import Table
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -128,3 +129,39 @@ def print_messages(messages, args):
         for message in messages:
             if message.role in args.roles:
                 print_message(message, args)
+
+
+def extract_json_lists(str_lists, flatten=False):
+    lists = [json.loads(extract_json(x)) for x in
+             str_lists if contains_json(x)]
+
+    if flatten:
+        return json.dumps([item for sublist in lists for item in sublist])
+    else:
+        return json.dumps(lists)
+
+
+def print_tokens(messages, token_stats, args):
+    if args.only:
+        args.roles = ["assistant"]
+    else:
+        args.roles = ["user", "assistant", "system"]
+
+    print_messages(messages, args)
+    console.print()
+
+    table = Table(title="tokens/costs")
+    table.add_column("Model", no_wrap=True)
+    table.add_column("Tokens", no_wrap=True)
+    table.add_column("Price", style="bold", justify="right")
+
+    for token_stat in token_stats:
+        table.add_row(
+            token_stat.name,
+            "{:d}".format(token_stat.tokens),
+            "${:.6f}".format(token_stat.cost),
+        )
+
+    console.print(table)
+    console.print("[red] * estimated costs do not \
+                  include the tokens that may be returned[/red]")
