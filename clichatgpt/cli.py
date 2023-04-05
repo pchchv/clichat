@@ -5,7 +5,7 @@ import types
 from rich.text import Text
 from rich.live import Live
 from rich.prompt import Prompt
-from clichat import storage, utils, printer, session, chat, errors, parser
+from . import storage, utils, printer, session, chat, errors, parser
 
 
 def migrate_old_cache_file_if_exists():

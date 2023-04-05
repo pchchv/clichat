@@ -2,7 +2,7 @@ import re
 import sys
 import json
 import rich
-from clichat import utils
+from . import utils
 from rich.json import JSON
 from rich.rule import Rule
 from rich.table import Table

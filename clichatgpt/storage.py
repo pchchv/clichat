@@ -9,7 +9,7 @@ import random
 import pickle
 import string
 import platformdirs
-from clichat import chat, errors
+from . import chat, errors
 
 
 APP_NAME = "clichat"

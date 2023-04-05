@@ -5,7 +5,7 @@ import openai
 import tiktoken
 import collections
 import openai.error
-from clichat import utils, errors
+from . import utils, errors
 
 
 DEFAULT_OPENAI_SETTINGS = {

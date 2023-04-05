@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-from clichat import utils
+from . import utils
 
 
 class RenameAction(argparse.Action):

@@ -1,7 +1,7 @@
 import os
 import re
 import glob
-from clichat import storage
+from . import storage
 
 
 def list():
