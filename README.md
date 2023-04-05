@@ -7,3 +7,18 @@ It accepts pipeline input, arguments, or both, and allows you to save common cue
 **Important:** To use CliChat, you will need to configure the OpenAI API key.
 
 You can do this by passing `--openai-api-key KEY` or by setting the env variable `OPENAI_API_KEY` (recommended).
+
+## Install
+
+### PyPi
+
+```bash
+pip install clichat
+```
+
+### Brew (slow...)
+
+```bash
+brew tap pchchv/clichat
+brew install clichat
+```
