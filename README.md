@@ -186,3 +186,49 @@ And since we asked for JSON, we can pipe our result to something else, e.g.:
 ```bash
 clichat -l -e > toanki
 ```
+
+### Configuring for Azure OpenAI
+
+CliChat can be used with the Azure OpenAI endpoint, in which case you will need to set the following environment variables in addition to `OPENAI_API_KEY`:
+
+- `OPENAI_API_TYPE` :: Set to `azure`. As required by [openai-python](https://github.com/openai/openai-python).
+- `OPENAI_API_BASE` :: The URL of the endpoint of your cognitive services, for example `https://eastus.api.cognitive.microsoft.com/`.
+- `OPENAI_API_AZURE_ENGINE` :: the name of your Azure deployment, for example `my-gpt-35-turbo` (tied to a specific model)
+
+### Help
+
+```
+usage: clichat [-h] [--openai-api-key key] [--temperature t] [-c {3.5,4}] [-i] [-s] [-t] [-p name] [-e] [-r] [-n] [-o] [-l] [-S sess] [--session-list] [--session-path]
+                 [--session-dump] [--session-delete] [--session-rename newsess]
+                 [query ...]
+
+a CLI access to ChatGPT
+
+positional arguments:
+  query                           Query to send to chat GPT
+
+options:
+  -h, --help                      show this help message and exit
+  --openai-api-key key            the OpenAI API key can also be set as env variable OPENAI_API_KEY
+  --temperature t                 temperature (openai setting)
+  -c {3.5,4}, --chat-gpt {3.5,4}  chat GPT model
+  -i, --interactive               start an interactive chat session. This will implicitly continue the conversation
+  -s, --stream                    Stream the incoming text to the terminal
+  -t, --tokens                    display what *would* be sent, how many tokens, and estimated costs
+  -p name, --prompt-file name     prompt name - will load the prompt at ~/.config/clichat/name as system msg
+
+result formatting options:
+  -e, --extract                   extract content from response if possible (either json or code block)
+  -r, --raw                       print session as pure text, don't pretty print or format
+  -n, --no-format                 do not add pretty print formatting to output
+  -o, --only                      Only display the response, omit query
+
+session options:
+  -l, --last                      alias for '-S last', the default session if none is specified
+  -S sess, --session sess         initiate or continue named session
+  --session-list                  list sessions
+  --session-path                  show path to session file
+  --session-dump                  dump session to stdout
+  --session-delete                delete session
+  --session-rename newsess        rename session
+```
